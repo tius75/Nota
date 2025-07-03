@@ -5,30 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nota Struk Sederhana</title>
     <style>
+        /* BASE STYLES & RESET */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column; /* Mengatur flex-direction ke column untuk menumpuk container */
+            align-items: center;    /* Pusatkan konten secara horizontal */
             min-height: 100vh;
             padding: 20px;
             box-sizing: border-box;
+            margin: 0; /* Pastikan tidak ada margin default */
         }
-        .container {
+        .container, .history-container {
             background-color: #ffffff;
-            padding: 30px;
+            padding: 25px; /* Sedikit kurangi padding */
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            margin-top: 20px;
+            width: 100%; /* Lebar penuh */
+            max-width: 600px; /* Batasi lebar maksimum */
+            margin-bottom: 20px;
+            box-sizing: border-box; /* Penting untuk model kotak */
         }
         h1, h2 {
             text-align: center;
             color: #333;
             margin-bottom: 20px;
+            font-size: 1.8em; /* Ukuran font H1 */
         }
+        h2 {
+            font-size: 1.5em; /* Ukuran font H2 */
+        }
+
+        /* FORM STYLES */
         .form-group {
             margin-bottom: 15px;
         }
@@ -40,13 +49,14 @@
         }
         input[type="text"],
         input[type="date"],
-        input[type="number"] {
-            width: calc(100% - 22px);
+        input[type="number"],
+        select {
+            width: calc(100% - 20px); /* Kurangi 20px untuk padding */
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
-            box-sizing: border-box;
+            box-sizing: border-box; /* Pastikan padding dan border termasuk dalam lebar */
         }
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
@@ -56,17 +66,22 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
+
+        /* TABLE STYLES */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            overflow-x: auto; /* Mengaktifkan scroll horizontal jika tabel terlalu lebar */
+            display: block; /* Penting untuk overflow-x bekerja pada table */
         }
         table, th, td {
             border: 1px solid #eee;
         }
         th, td {
-            padding: 10px;
+            padding: 10px 8px; /* Sedikit kurangi padding samping */
             text-align: left;
+            white-space: nowrap; /* Mencegah teks mematah ke baris baru */
         }
         th {
             background-color: #f8f8f8;
@@ -83,36 +98,57 @@
         .total-row td:first-child {
             text-align: left;
         }
+
+        /* BUTTON STYLES */
         .button-group {
             text-align: center;
             margin-top: 25px;
+            display: flex;
+            flex-wrap: wrap; /* Memungkinkan tombol untuk wrap ke baris baru jika tidak muat */
+            justify-content: center;
+            gap: 10px; /* Jarak antar tombol */
         }
         button {
-            padding: 12px 25px;
+            padding: 10px 20px; /* Sedikit kurangi padding tombol */
             background-color: #28a745;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1.1em;
+            font-size: 1em; /* Ukuran font tombol */
             transition: background-color 0.3s ease;
-            margin: 0 10px;
+            white-space: nowrap; /* Mencegah teks tombol patah */
         }
         button:hover {
             background-color: #218838;
         }
         .action-buttons button {
-            padding: 5px 10px;
+            padding: 5px 8px; /* Padding lebih kecil untuk tombol aksi dalam tabel */
             margin: 0 2px;
-            font-size: 0.9em;
-            background-color: #007bff; /* Biru untuk Edit */
+            font-size: 0.85em; /* Font lebih kecil */
+            background-color: #007bff;
         }
         .action-buttons button.delete-btn {
-            background-color: #dc3545; /* Merah untuk Delete */
+            background-color: #dc3545;
         }
         .action-buttons button:hover {
             opacity: 0.9;
         }
+        #clearHistoryBtn {
+            background-color: #f44336;
+            margin-top: 15px; /* Jarak dari tabel histori */
+        }
+        #clearHistoryBtn:hover {
+            background-color: #d32f2f;
+        }
+        #shareButtons button {
+            background-color: #25D366;
+        }
+        #shareButtons button:hover {
+            background-color: #1DA851;
+        }
+
+        /* STRUK OUTPUT STYLES */
         #strukOutput {
             margin-top: 30px;
             border-top: 1px dashed #ccc;
@@ -125,33 +161,141 @@
         #strukOutput .item-row {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap; /* Memungkinkan item row untuk wrap jika nama barang panjang */
+            margin-bottom: 5px;
         }
         #strukOutput .item-row .item-name {
-            flex: 2;
+            flex: 1; /* Ambil sisa ruang */
+            min-width: 50%; /* Pastikan nama barang tidak terlalu kecil */
         }
         #strukOutput .item-row .item-qty-price {
-            flex: 1;
             text-align: right;
+            flex-grow: 0; /* Jangan tumbuh */
+            flex-shrink: 0; /* Jangan menyusut */
+            width: 120px; /* Lebar tetap untuk qty x harga */
         }
         #strukOutput .item-row .item-total {
             width: 80px;
             text-align: right;
+            margin-left: auto; /* Dorong ke kanan */
         }
+        /* Penyesuaian untuk tampilan mobile yang sangat sempit */
+        @media (max-width: 480px) {
+            #strukOutput .item-row .item-qty-price {
+                width: 100%; /* Pindah ke baris baru jika layar sangat kecil */
+                text-align: left; /* Sesuaikan alignment */
+                margin-top: -5px; /* Sedikit naikkan untuk mengurangi spasi */
+                font-size: 0.9em;
+            }
+            #strukOutput .item-row .item-total {
+                width: 100%;
+                text-align: left;
+                font-size: 0.9em;
+            }
+        }
+
+
         #strukOutput .total {
             font-weight: bold;
             text-align: right;
             margin-top: 10px;
             font-size: 1.1em;
         }
-        #shareButtons {
-            text-align: center;
+
+        /* HISTORY STYLES */
+        .history-container {
             margin-top: 20px;
         }
-        #shareButtons button {
-            background-color: #25D366; /* WhatsApp Green */
+        #historyList {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            overflow-x: auto; /* Aktifkan scroll horizontal untuk tabel histori */
+            display: block; /* Penting untuk overflow-x bekerja */
         }
-        #shareButtons button:hover {
-            background-color: #1DA851;
+        #historyList th, #historyList td {
+            border: 1px solid #eee;
+            padding: 8px 6px; /* Padding lebih sempit */
+            text-align: left;
+            font-size: 0.85em; /* Font lebih kecil */
+            white-space: nowrap; /* Mencegah teks mematah */
+        }
+        #historyList th {
+            background-color: #f0f0f0;
+        }
+        #historyList tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .history-actions button {
+            padding: 3px 6px; /* Padding sangat kecil untuk tombol histori */
+            font-size: 0.75em; /* Font sangat kecil */
+            margin: 0 1px;
+        }
+        .history-actions button.view-btn {
+            background-color: #007bff;
+        }
+        .history-actions button.delete-history-btn {
+            background-color: #dc3545;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            .container, .history-container {
+                padding: 15px; /* Kurangi padding untuk layar lebih kecil */
+            }
+            h1 {
+                font-size: 1.6em;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+            button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .container, .history-container {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            h1 {
+                font-size: 1.4em;
+            }
+            h2 {
+                font-size: 1.2em;
+            }
+            input[type="text"],
+            input[type="date"],
+            input[type="number"],
+            select {
+                padding: 8px;
+                font-size: 0.95em;
+            }
+            th, td {
+                padding: 8px 5px; /* Padding lebih sempit */
+                font-size: 0.9em;
+            }
+            .action-buttons button {
+                padding: 3px 6px;
+                font-size: 0.75em;
+            }
+            .button-group button {
+                padding: 8px 12px;
+                font-size: 0.85em;
+                margin: 5px; /* Jarak antar tombol di mobile */
+            }
+            #shareButtons {
+                flex-direction: column; /* Tombol share menumpuk di mobile */
+            }
+            #shareButtons button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -208,6 +352,7 @@
 
         <div class="button-group">
             <button onclick="buatStruk()">Buat Struk</button>
+            <button onclick="simpanStruk()" style="background-color: #17a2b8;">Simpan Struk</button>
         </div>
 
         <div id="strukOutput">
@@ -225,19 +370,41 @@
         </div>
     </div>
 
+    <div class="history-container">
+        <h2>Riwayat Struk</h2>
+        <table id="historyList">
+            <thead>
+                <tr>
+                    <th>ID Nota</th>
+                    <th>Tanggal</th>
+                    <th>Pembeli</th>
+                    <th>Total</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+        <div class="button-group">
+            <button id="clearHistoryBtn" onclick="clearHistory()">Hapus Semua Riwayat</button>
+        </div>
+    </div>
+
     <script>
         let items = [];
         let grandTotal = 0;
-        let itemCounter = 0; // Untuk ID unik item
-        let editingItemId = null; // Menyimpan ID item yang sedang diedit
+        let itemCounter = 0;
+        let editingItemId = null;
+        let history = [];
 
-        // Set tanggal hari ini secara default
         document.addEventListener('DOMContentLoaded', (event) => {
             const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('tanggal').value = `${yyyy}-${mm}-${dd}`;
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('tanggal').value = `${year}-${month}-${day}`;
+
+            loadHistory();
         });
 
         function formatRupiah(angka) {
@@ -265,7 +432,6 @@
             const jumlah = jumlahKuantitas * hargaSatuan;
 
             if (editingItemId !== null) {
-                // Mode Edit
                 const itemIndex = items.findIndex(item => item.id === editingItemId);
                 if (itemIndex > -1) {
                     items[itemIndex].nama = namaBarang;
@@ -273,14 +439,13 @@
                     items[itemIndex].hargaSatuan = hargaSatuan;
                     items[itemIndex].jumlah = jumlah;
                 }
-                editingItemId = null; // Keluar dari mode edit
+                editingItemId = null;
                 document.getElementById('btnAddUpdate').innerText = 'Tambah Barang';
                 document.getElementById('btnCancelEdit').style.display = 'none';
             } else {
-                // Mode Tambah Baru
                 itemCounter++;
                 const newItem = {
-                    id: itemCounter, // ID unik
+                    id: itemCounter,
                     nama: namaBarang,
                     qty: jumlahKuantitas,
                     hargaSatuan: hargaSatuan,
@@ -303,16 +468,16 @@
 
                 document.getElementById('btnAddUpdate').innerText = 'Update Barang';
                 document.getElementById('btnCancelEdit').style.display = 'inline-block';
-                editingItemId = id; // Set ID item yang sedang diedit
+                editingItemId = id;
             }
         }
 
         function deleteBarang(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus barang ini dari daftar saat ini?')) {
                 items = items.filter(item => item.id !== id);
                 hitungUlangTotal();
                 renderTable();
-                batalEdit(); // Pastikan keluar dari mode edit jika item yang dihapus sedang diedit
+                batalEdit();
             }
         }
 
@@ -325,7 +490,7 @@
 
         function renderTable() {
             const daftarBelanja = document.getElementById('daftarBelanja');
-            daftarBelanja.innerHTML = ''; // Clear existing rows
+            daftarBelanja.innerHTML = '';
 
             items.forEach(item => {
                 const row = daftarBelanja.insertRow();
@@ -358,13 +523,17 @@
         }
 
         function buatStruk() {
-            const tanggal = document.getElementById('tanggal').value;
-            const namaPembeli = document.getElementById('namaPembeli').value || 'Pelanggan Yth.';
-
             if (items.length === 0) {
                 alert('Tambahkan barang terlebih dahulu sebelum membuat struk.');
                 return;
             }
+            renderStrukPreview();
+            document.getElementById('shareButtons').style.display = 'block';
+        }
+
+        function renderStrukPreview() {
+            const tanggal = document.getElementById('tanggal').value;
+            const namaPembeli = document.getElementById('namaPembeli').value || 'Pelanggan Yth.';
 
             document.getElementById('strukTanggal').innerText = `Tanggal: ${tanggal}`;
             document.getElementById('strukNamaPembeli').innerText = `Nama: ${namaPembeli}`;
@@ -382,9 +551,123 @@
                 `;
                 strukItemsDiv.appendChild(itemDiv);
             });
-
             document.getElementById('strukGrandTotal').innerText = `Total: ${formatRupiah(grandTotal)}`;
-            document.getElementById('shareButtons').style.display = 'block';
+        }
+
+        function simpanStruk() {
+            if (items.length === 0) {
+                alert('Tidak ada barang untuk disimpan dalam struk.');
+                return;
+            }
+
+            const tanggal = document.getElementById('tanggal').value;
+            const namaPembeli = document.getElementById('namaPembeli').value || 'Pelanggan Yth.';
+
+            const newStruk = {
+                id: Date.now(), // ID unik berdasarkan timestamp
+                tanggal: tanggal,
+                pembeli: namaPembeli,
+                items: JSON.parse(JSON.stringify(items)), // Deep copy items
+                total: grandTotal
+            };
+
+            history.push(newStruk);
+            localStorage.setItem('strukHistory', JSON.stringify(history));
+            alert('Struk berhasil disimpan dalam riwayat!');
+            renderHistory();
+            resetCurrentStruk();
+        }
+
+        function loadHistory() {
+            const storedHistory = localStorage.getItem('strukHistory');
+            if (storedHistory) {
+                history = JSON.parse(storedHistory);
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const historyListBody = document.querySelector('#historyList tbody');
+            historyListBody.innerHTML = '';
+
+            if (history.length === 0) {
+                historyListBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada riwayat struk.</td></tr>';
+                return;
+            }
+
+            history.forEach(struk => {
+                const row = historyListBody.insertRow();
+                row.insertCell(0).innerText = struk.id;
+                row.insertCell(1).innerText = struk.tanggal;
+                row.insertCell(2).innerText = struk.pembeli;
+                row.insertCell(3).innerText = formatRupiah(struk.total);
+
+                const actionCell = row.insertCell(4);
+                actionCell.classList.add('history-actions');
+
+                const viewButton = document.createElement('button');
+                viewButton.innerText = 'Lihat';
+                viewButton.classList.add('view-btn');
+                viewButton.onclick = () => viewHistoryStruk(struk.id);
+                actionCell.appendChild(viewButton);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Hapus';
+                deleteButton.classList.add('delete-history-btn');
+                deleteButton.onclick = () => deleteHistoryStruk(struk.id);
+                actionCell.appendChild(deleteButton);
+            });
+        }
+
+        function viewHistoryStruk(id) {
+            const strukToView = history.find(s => s.id === id);
+            if (strukToView) {
+                document.getElementById('tanggal').value = strukToView.tanggal;
+                document.getElementById('namaPembeli').value = strukToView.pembeli;
+                items = JSON.parse(JSON.stringify(strukToView.items));
+                hitungUlangTotal();
+                renderTable();
+                buatStruk();
+                alert(`Menampilkan struk riwayat dengan ID: ${strukToView.id}`);
+            }
+        }
+
+        function deleteHistoryStruk(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus struk ini dari riwayat?')) {
+                history = history.filter(s => s.id !== id);
+                localStorage.setItem('strukHistory', JSON.stringify(history));
+                renderHistory();
+                alert('Struk berhasil dihapus dari riwayat.');
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Apakah Anda yakin ingin menghapus SEMUA riwayat struk? Tindakan ini tidak dapat dibatalkan.')) {
+                localStorage.removeItem('strukHistory');
+                history = [];
+                renderHistory();
+                alert('Semua riwayat struk telah dihapus.');
+            }
+        }
+
+        function resetCurrentStruk() {
+            document.getElementById('namaPembeli').value = '';
+            items = [];
+            grandTotal = 0;
+            itemCounter = 0;
+            editingItemId = null;
+            renderTable();
+            clearBarangInputs();
+            document.getElementById('shareButtons').style.display = 'none';
+            document.getElementById('strukTanggal').innerText = '';
+            document.getElementById('strukNamaPembeli').innerText = '';
+            document.getElementById('strukItems').innerHTML = '';
+            document.getElementById('strukGrandTotal').innerText = '';
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('tanggal').value = `${year}-${month}-${day}`;
         }
 
         function shareViaWhatsApp() {
@@ -394,15 +677,20 @@
             let message = `*NOTA PEMBELIAN*\n\n`;
             message += `Tanggal: ${tanggal}\n`;
             message += `Pembeli: ${namaPembeli}\n`;
-            message += `------------------------------\n`;
+            message += `\n`; // Baris kosong untuk pemisah
 
-            items.forEach(item => {
-                message += `${item.nama} (${item.qty}x${formatRupiah(item.hargaSatuan)}) : ${formatRupiah(item.jumlah)}\n`;
+            // Bagian Daftar Barang
+            message += `*Daftar Barang:*\n`;
+            items.forEach((item, index) => {
+                // Format: 1. Nama Barang (Qty x Harga Satuan) = Jumlah
+                message += `${index + 1}. ${item.nama} (${item.qty} x ${formatRupiah(item.hargaSatuan)}) = ${formatRupiah(item.jumlah)}\n`;
             });
 
-            message += `------------------------------\n`;
+            message += `\n------------------------------\n`;
             message += `*TOTAL: ${formatRupiah(grandTotal)}*\n`;
-            message += `\nTerima kasih atas kunjungan Anda!`;
+            message += `------------------------------\n`;
+            message += `\nTerima kasih atas kunjungan Anda!\n`;
+            message += `_Dibuat dengan Aplikasi Nota Sederhana_`;
 
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
