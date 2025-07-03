@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota Struk Sederhana</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #eee;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        td {
+            background-color: #fff;
+        }
+        .total-row td {
+            font-weight: bold;
+            background-color: #e9f5ee;
+            text-align: right;
+        }
+        .total-row td:first-child {
+            text-align: left;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 25px;
+        }
+        button {
+            padding: 12px 25px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            margin: 0 10px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .action-buttons button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            font-size: 0.9em;
+            background-color: #007bff; /* Biru untuk Edit */
+        }
+        .action-buttons button.delete-btn {
+            background-color: #dc3545; /* Merah untuk Delete */
+        }
+        .action-buttons button:hover {
+            opacity: 0.9;
+        }
+        #strukOutput {
+            margin-top: 30px;
+            border-top: 1px dashed #ccc;
+            padding-top: 20px;
+        }
+        #strukOutput p {
+            margin-bottom: 5px;
+            color: #444;
+        }
+        #strukOutput .item-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        #strukOutput .item-row .item-name {
+            flex: 2;
+        }
+        #strukOutput .item-row .item-qty-price {
+            flex: 1;
+            text-align: right;
+        }
+        #strukOutput .item-row .item-total {
+            width: 80px;
+            text-align: right;
+        }
+        #strukOutput .total {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+        #shareButtons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #shareButtons button {
+            background-color: #25D366; /* WhatsApp Green */
+        }
+        #shareButtons button:hover {
+            background-color: #1DA851;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pembuat Nota Struk</h1>
+        <div class="form-group">
+            <label for="tanggal">Tanggal Nota:</label>
+            <input type="date" id="tanggal">
+        </div>
+        <div class="form-group">
+            <label for="namaPembeli">Nama Pembeli:</label>
+            <input type="text" id="namaPembeli" placeholder="Masukkan nama pembeli">
+        </div>
+
+        <h2>Daftar Barang</h2>
+        <div class="form-group">
+            <label for="namaBarang">Nama Barang:</label>
+            <input type="text" id="namaBarang" placeholder="Contoh: Pulpen">
+        </div>
+        <div class="form-group">
+            <label for="jumlahKuantitas">Jumlah Kuantitas:</label>
+            <input type="number" id="jumlahKuantitas" value="1" min="1">
+        </div>
+        <div class="form-group">
+            <label for="hargaSatuan">Harga Satuan (Rp.):</label>
+            <input type="number" id="hargaSatuan" value="0" min="0">
+        </div>
+        <div class="button-group">
+            <button onclick="tambahAtauUpdateBarang()" id="btnAddUpdate">Tambah Barang</button>
+            <button onclick="batalEdit()" id="btnCancelEdit" style="display: none; background-color: #6c757d;">Batal Edit</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Nama Barang</th>
+                    <th>Qty</th>
+                    <th>Harga Satuan</th>
+                    <th>Jumlah</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="daftarBelanja">
+                </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="4">Total:</td>
+                    <td id="grandTotal">Rp. 0</td>
+                    <td></td> </tr>
+            </tfoot>
+        </table>
+
+        <div class="button-group">
+            <button onclick="buatStruk()">Buat Struk</button>
+        </div>
+
+        <div id="strukOutput">
+            <h2>Preview Struk</h2>
+            <p id="strukTanggal"></p>
+            <p id="strukNamaPembeli"></p>
+            <hr>
+            <div id="strukItems">
+                </div>
+            <p class="total" id="strukGrandTotal"></p>
+        </div>
+
+        <div id="shareButtons" style="display: none;">
+            <button onclick="shareViaWhatsApp()">Bagikan Via WhatsApp</button>
+        </div>
+    </div>
+
+    <script>
+        let items = [];
+        let grandTotal = 0;
+        let itemCounter = 0; // Untuk ID unik item
+        let editingItemId = null; // Menyimpan ID item yang sedang diedit
+
+        // Set tanggal hari ini secara default
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('tanggal').value = `${yyyy}-${mm}-${dd}`;
+        });
+
+        function formatRupiah(angka) {
+            let reverse = angka.toString().split('').reverse().join('');
+            let ribuan = reverse.match(/\d{1,3}/g);
+            let result = ribuan.join('.').split('').reverse().join('');
+            return `Rp. ${result}`;
+        }
+
+        function hitungUlangTotal() {
+            grandTotal = items.reduce((sum, item) => sum + item.jumlah, 0);
+            document.getElementById('grandTotal').innerText = formatRupiah(grandTotal);
+        }
+
+        function tambahAtauUpdateBarang() {
+            const namaBarang = document.getElementById('namaBarang').value;
+            const jumlahKuantitas = parseInt(document.getElementById('jumlahKuantitas').value);
+            const hargaSatuan = parseInt(document.getElementById('hargaSatuan').value);
+
+            if (!namaBarang || isNaN(jumlahKuantitas) || isNaN(hargaSatuan) || jumlahKuantitas <= 0 || hargaSatuan < 0) {
+                alert('Mohon lengkapi semua input barang dengan benar (kuantitas > 0, harga >= 0).');
+                return;
+            }
+
+            const jumlah = jumlahKuantitas * hargaSatuan;
+
+            if (editingItemId !== null) {
+                // Mode Edit
+                const itemIndex = items.findIndex(item => item.id === editingItemId);
+                if (itemIndex > -1) {
+                    items[itemIndex].nama = namaBarang;
+                    items[itemIndex].qty = jumlahKuantitas;
+                    items[itemIndex].hargaSatuan = hargaSatuan;
+                    items[itemIndex].jumlah = jumlah;
+                }
+                editingItemId = null; // Keluar dari mode edit
+                document.getElementById('btnAddUpdate').innerText = 'Tambah Barang';
+                document.getElementById('btnCancelEdit').style.display = 'none';
+            } else {
+                // Mode Tambah Baru
+                itemCounter++;
+                const newItem = {
+                    id: itemCounter, // ID unik
+                    nama: namaBarang,
+                    qty: jumlahKuantitas,
+                    hargaSatuan: hargaSatuan,
+                    jumlah: jumlah
+                };
+                items.push(newItem);
+            }
+
+            hitungUlangTotal();
+            renderTable();
+            clearBarangInputs();
+        }
+
+        function editBarang(id) {
+            const itemToEdit = items.find(item => item.id === id);
+            if (itemToEdit) {
+                document.getElementById('namaBarang').value = itemToEdit.nama;
+                document.getElementById('jumlahKuantitas').value = itemToEdit.qty;
+                document.getElementById('hargaSatuan').value = itemToEdit.hargaSatuan;
+
+                document.getElementById('btnAddUpdate').innerText = 'Update Barang';
+                document.getElementById('btnCancelEdit').style.display = 'inline-block';
+                editingItemId = id; // Set ID item yang sedang diedit
+            }
+        }
+
+        function deleteBarang(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+                items = items.filter(item => item.id !== id);
+                hitungUlangTotal();
+                renderTable();
+                batalEdit(); // Pastikan keluar dari mode edit jika item yang dihapus sedang diedit
+            }
+        }
+
+        function batalEdit() {
+            editingItemId = null;
+            document.getElementById('btnAddUpdate').innerText = 'Tambah Barang';
+            document.getElementById('btnCancelEdit').style.display = 'none';
+            clearBarangInputs();
+        }
+
+        function renderTable() {
+            const daftarBelanja = document.getElementById('daftarBelanja');
+            daftarBelanja.innerHTML = ''; // Clear existing rows
+
+            items.forEach(item => {
+                const row = daftarBelanja.insertRow();
+                row.insertCell(0).innerText = item.id;
+                row.insertCell(1).innerText = item.nama;
+                row.insertCell(2).innerText = item.qty;
+                row.insertCell(3).innerText = formatRupiah(item.hargaSatuan);
+                row.insertCell(4).innerText = formatRupiah(item.jumlah);
+
+                const actionCell = row.insertCell(5);
+                actionCell.classList.add('action-buttons');
+                const editButton = document.createElement('button');
+                editButton.innerText = 'Edit';
+                editButton.onclick = () => editBarang(item.id);
+                actionCell.appendChild(editButton);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Hapus';
+                deleteButton.classList.add('delete-btn');
+                deleteButton.onclick = () => deleteBarang(item.id);
+                actionCell.appendChild(deleteButton);
+            });
+        }
+
+        function clearBarangInputs() {
+            document.getElementById('namaBarang').value = '';
+            document.getElementById('jumlahKuantitas').value = '1';
+            document.getElementById('hargaSatuan').value = '0';
+            document.getElementById('namaBarang').focus();
+        }
+
+        function buatStruk() {
+            const tanggal = document.getElementById('tanggal').value;
+            const namaPembeli = document.getElementById('namaPembeli').value || 'Pelanggan Yth.';
+
+            if (items.length === 0) {
+                alert('Tambahkan barang terlebih dahulu sebelum membuat struk.');
+                return;
+            }
+
+            document.getElementById('strukTanggal').innerText = `Tanggal: ${tanggal}`;
+            document.getElementById('strukNamaPembeli').innerText = `Nama: ${namaPembeli}`;
+
+            const strukItemsDiv = document.getElementById('strukItems');
+            strukItemsDiv.innerHTML = '';
+
+            items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('item-row');
+                itemDiv.innerHTML = `
+                    <span class="item-name">${item.nama}</span>
+                    <span class="item-qty-price">${item.qty} x ${formatRupiah(item.hargaSatuan)}</span>
+                    <span class="item-total">${formatRupiah(item.jumlah)}</span>
+                `;
+                strukItemsDiv.appendChild(itemDiv);
+            });
+
+            document.getElementById('strukGrandTotal').innerText = `Total: ${formatRupiah(grandTotal)}`;
+            document.getElementById('shareButtons').style.display = 'block';
+        }
+
+        function shareViaWhatsApp() {
+            const tanggal = document.getElementById('tanggal').value;
+            const namaPembeli = document.getElementById('namaPembeli').value || 'Pelanggan Yth.';
+
+            let message = `*NOTA PEMBELIAN*\n\n`;
+            message += `Tanggal: ${tanggal}\n`;
+            message += `Pembeli: ${namaPembeli}\n`;
+            message += `------------------------------\n`;
+
+            items.forEach(item => {
+                message += `${item.nama} (${item.qty}x${formatRupiah(item.hargaSatuan)}) : ${formatRupiah(item.jumlah)}\n`;
+            });
+
+            message += `------------------------------\n`;
+            message += `*TOTAL: ${formatRupiah(grandTotal)}*\n`;
+            message += `\nTerima kasih atas kunjungan Anda!`;
+
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
